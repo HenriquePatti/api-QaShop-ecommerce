@@ -28,4 +28,4 @@ test-results/
 .vscode/
 
 #mochawesome
-test-reports/
+tests-reports/

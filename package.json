@@ -5,6 +5,8 @@
   "type": "module",
   "main": "src/server.js",
   "scripts": {
+    "test": "mocha",
+    "test:report": "mocha --reporter mochawesome --reporter-options reportDir=tests-reports,reportFilename=reports,html=true,json=true,charts=true",
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "prisma:generate": "prisma generate",
@@ -40,6 +42,10 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "prisma": "^5.22.0"
+    "chai": "^6.2.2",
+    "mocha": "^11.7.6",
+    "mochawesome": "^7.1.4",
+    "prisma": "^5.22.0",
+    "supertest": "^7.2.2"
   }
 }
