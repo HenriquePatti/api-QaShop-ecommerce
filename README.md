@@ -105,8 +105,12 @@ api-QaShop-ecommerce/
 │   ├── dev.db                  # criado após migrate (gitignored)
 │   └── migrations/
 ├── tests/                      # automação (Mocha)
+│   ├── setup.js                # carrega .env.test (dotenv)
+│   ├── config.js               # BASE_URL, endpoints
+│   ├── helpers/                # ex.: auth.js → register()
 │   ├── <módulo>/               # ex.: auth/ → auth-<regra>.test.js
 │   └── health/
+├── .env.test.example           # template do env de testes (versionado)
 ├── docs/
 │   ├── 01-regras-de-negocio/
 │   │   └── regras-de-negocio.md
@@ -202,9 +206,29 @@ Exemplo de layout: `Portifolio/api-QaShop-ecommerce`, `Portifolio/web-QaShop-eco
 
 ## Testes automatizados (API)
 
-**Stack:** Mocha + Chai + Supertest requisições HTTP contra a API em execução, sem importar o `app` interno.
+**Stack:** Mocha + Chai + Supertest — requisições HTTP contra a API em execução, sem importar o `app` interno.
 
 **Antes de rodar:** [Quick start](#quick-start-5-min) concluído (banco com seed) e API ligada.
+
+### Setup (uma vez)
+
+Ambiente de testes **separado** do `.env` da API:
+
+| Sistema | Comando |
+|---------|---------|
+| macOS / Linux / Git Bash | `cp .env.test.example .env.test` |
+| Windows (CMD) | `copy .env.test.example .env.test` |
+| Windows (PowerShell) | `Copy-Item .env.test.example .env.test` |
+
+Variável em `.env.test` (ver `.env.test.example`):
+
+| Variável | Descrição |
+|----------|-----------|
+| `API_BASE_URL` | URL base da API para o Supertest (padrão `http://localhost:3000`) |
+
+> Se alterar `PORT` no `.env` da API, atualize `API_BASE_URL` no `.env.test` para a mesma porta. Sem `.env.test`, os testes usam fallback `http://localhost:3000`.
+
+### Executar
 
 | Terminal | Comando |
 |----------|---------|
@@ -214,9 +238,17 @@ Exemplo de layout: `Portifolio/api-QaShop-ecommerce`, `Portifolio/web-QaShop-eco
 
 **Onde ficam os specs:** `tests/**/*.test.js` (config: `.mocharc.json`). Padrão: `tests/<módulo>/<regra>.test.js`, rastreável em `docs/03-casos-de-teste/`.
 
+**Estrutura de suporte:**
+
+| Arquivo | Função |
+|---------|--------|
+| `tests/setup.js` | Carrega `.env.test` antes dos specs (via `import` no Mocha) |
+| `tests/config.js` | `BASE_URL` e constantes de endpoint |
+| `tests/helpers/auth.js` | Helpers HTTP — ex.: `register(body)` |
+
 **Dependências de ambiente:**
 
-- API em `http://localhost:3000` (ou `PORT` do `.env`).
+- API acessível em `API_BASE_URL` (padrão `http://localhost:3000`, alinhado ao `PORT` do `.env`).
 - Banco com **seed** — cenários que usam dados do seed (usuários `@test.com`, etc.) exigem `npm run db:seed`.
 - Specs que **criam** registros devem usar dados únicos por execução (evitar colisão).
 
@@ -313,7 +345,7 @@ Setup do front: [README do front](https://github.com/HenriquePatti/web-QaShop-ec
 | Erro `bcrypt` no `npm install` (Windows) | [Build Tools C++](https://visualstudio.microsoft.com/visual-cpp-build-tools/) |
 | Porta 3000 em uso | Altere `PORT` no `.env` |
 | Migração / seed falhou | `npm run db:reset` |
-| `npm test` falha com `ECONNREFUSED` | Suba a API antes: `npm run dev` |
+| `npm test` falha com `ECONNREFUSED` | Suba a API antes: `npm run dev`; confira `API_BASE_URL` em `.env.test` vs `PORT` no `.env` |
 | Teste espera conflito/duplicata mas retorna `201` | Rode `npm run db:seed` — dados do seed ausentes |
 | Front com tela cinza (se usar `web-QaShop-ecommerce`) | API desligada — suba `npm run dev` aqui primeiro |
 
@@ -326,6 +358,7 @@ Validado seguindo este README em **macOS**, **Linux** e **Windows** (comandos eq
 | Etapa | macOS / Linux | Windows |
 |-------|---------------|---------|
 | Copiar `.env` | `cp .env.example .env` | `copy .env.example .env` ou `Copy-Item .env.example .env` |
+| Copiar `.env.test` | `cp .env.test.example .env.test` | `copy .env.test.example .env.test` ou `Copy-Item .env.test.example .env.test` |
 | Instalar deps | `npm install` | Igual; se `bcrypt` falhar, instale [Build Tools C++](https://visualstudio.microsoft.com/visual-cpp-build-tools/) |
 | Banco + seed | `npm run prisma:generate` → `prisma:migrate` → `db:seed` | Igual |
 | Reset banco | `npm run db:reset` | Igual (PowerShell/Git Bash; no CMD use PowerShell) |

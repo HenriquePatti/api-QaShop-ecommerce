@@ -1,16 +1,12 @@
-import request from 'supertest';
+import { register } from '../helpers/auth.js';
 import { expect } from 'chai';
-
-const BASE_URL = 'http://localhost:3000';
 
 describe('[AUTH-12] [POST /auth/register]: Resposta de sucesso', () => {
   it('CT-01 - cadastro válido → 201 com token e user sem password', async () => {
     const email = `auth12_${Date.now()}@test.local`;
     const body = { name: 'Carol', email: email, 'password': 'Senha123' };
 
-    const res = await request(BASE_URL)
-      .post('/auth/register')
-      .send(body);
+    const res = await register(body);
     expect(res.status).to.equal(201);
     expect(res.body.token).to.not.be.empty;
 
