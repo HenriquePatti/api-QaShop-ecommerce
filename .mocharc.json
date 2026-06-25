@@ -1,5 +1,6 @@
 {
   "spec": "tests/**/*.test.js",
+  "import": ["./tests/setup.js"],
   "timeout": 10000,
   "exit": true
 }
