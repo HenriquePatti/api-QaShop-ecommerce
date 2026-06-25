@@ -31,8 +31,6 @@ npm run dev
 4. **Swagger:** http://localhost:3000/api/docs
 5. *(Opcional)* Front irmão `web-QaShop-ecommerce` → ver [Front-end opcional](#front-end-opcional)
 
-Documentação interativa da API: **http://localhost:3000/api/docs** (Swagger UI — abra com a API em execução).
-
 ---
 
 ## Antes de começar
@@ -40,14 +38,10 @@ Documentação interativa da API: **http://localhost:3000/api/docs** (Swagger UI
 | Item | Obrigatório? | Observação |
 |------|:------------:|------------|
 | Node.js 20+ | Sim | `node --version` · `npm --version` |
-| Arquivo `.env` | Sim | Copiar de `.env.example` |
+| Arquivo `.env` | Sim | Copiar de `.env.example` — ver [Compatibilidade](#compatibilidade-multiplataforma) |
 | Pastas irmãs com `web-QaShop-ecommerce` | Só se for usar o front | Clone local: `../web-QaShop-ecommerce` · GitHub: [web-QaShop-ecommerce](https://github.com/HenriquePatti/web-QaShop-ecommerce) |
-| Windows + erro em `bcrypt` no `npm install` | — | [Build Tools C++](https://visualstudio.microsoft.com/visual-cpp-build-tools/) ou Developer PowerShell |
 
-| SO | Recomendação |
-|----|----------------|
-| **macOS / Linux** | Use os comandos `cp` da tabela abaixo |
-| **Windows** | Prefira **PowerShell** ou **Git Bash**; no CMD use `copy` / `Copy-Item` |
+Comandos por SO e troubleshooting: [Compatibilidade multiplataforma](#compatibilidade-multiplataforma) · [Problemas comuns](#problemas-comuns).
 
 ---
 
@@ -71,6 +65,7 @@ Documentação interativa da API: **http://localhost:3000/api/docs** (Swagger UI
 | Validação | Zod |
 | Documentação | Swagger UI (`swagger-jsdoc` + `swagger-ui-express`) |
 | Configuração | dotenv |
+| Testes (automação) | Mocha + Chai + Supertest |
 
 ---
 
@@ -109,24 +104,22 @@ api-QaShop-ecommerce/
 │   ├── seed.js
 │   ├── dev.db                  # criado após migrate (gitignored)
 │   └── migrations/
+├── tests/                      # automação (Mocha)
+│   ├── <módulo>/               # ex.: auth/ → auth-<regra>.test.js
+│   └── health/
 ├── docs/
 │   ├── 01-regras-de-negocio/
 │   │   └── regras-de-negocio.md
-│   ├── 02-condicoes-de-teste/
-│   │   └── AUTH/
-│   │       └── AUTH-01.md
+│   ├── 02-condicoes-de-teste/  # por módulo/regra
 │   ├── 03-casos-de-teste/
-│   │   └── AUTH/
-│   │       └── AUTH-01.md
-│   ├── 04-relatorios-de-execucao/
-│   │   ├── README.md
-│   │   └── 01-execucao/
-│   ├── 05-roadmap-testes.md
+│   └── 04-relatorios-de-execucao/
 ```
 
 ---
 
 ## Como executar localmente
+
+> Já seguiu o [Quick start](#quick-start-5-min)? Pule para [Testes automatizados](#testes-automatizados-api) ou [Deu certo?](#deu-certo).
 
 ### 1. Instalar dependências
 
@@ -207,6 +200,30 @@ Exemplo de layout: `Portifolio/api-QaShop-ecommerce`, `Portifolio/web-QaShop-eco
 
 ---
 
+## Testes automatizados (API)
+
+**Stack:** Mocha + Chai + Supertest requisições HTTP contra a API em execução, sem importar o `app` interno.
+
+**Antes de rodar:** [Quick start](#quick-start-5-min) concluído (banco com seed) e API ligada.
+
+| Terminal | Comando |
+|----------|---------|
+| 1 | `npm run dev` |
+| 2 | `npm test` — suíte Mocha |
+| 2 | `npm run test:report` — suíte + relatório HTML em `tests-reports/` |
+
+**Onde ficam os specs:** `tests/**/*.test.js` (config: `.mocharc.json`). Padrão: `tests/<módulo>/<regra>.test.js`, rastreável em `docs/03-casos-de-teste/`.
+
+**Dependências de ambiente:**
+
+- API em `http://localhost:3000` (ou `PORT` do `.env`).
+- Banco com **seed** — cenários que usam dados do seed (usuários `@test.com`, etc.) exigem `npm run db:seed`.
+- Specs que **criam** registros devem usar dados únicos por execução (evitar colisão).
+
+Cobertura por regra: `docs/02-condicoes-de-teste/` e `docs/03-casos-de-teste/`
+
+---
+
 ## Deu certo?
 
 **API OK se:**
@@ -277,13 +294,13 @@ Setup do front: [README do front](https://github.com/HenriquePatti/web-QaShop-ec
 
 | Documento | Uso |
 |-----------|-----|
-| [`docs/01-regras-de-negocio/regras-de-negocio.md`](docs/01-regras-de-negocio/regras-de-negocio.md) | Regras implementadas (AUTH-01, CART-07…) — oráculo de testes |
-| [`docs/02-condicoes-de-teste/`](docs/02-condicoes-de-teste/) | Condições de teste por regra (ex.: `COND-01` em AUTH-01) |
-| [`docs/03-casos-de-teste/`](docs/03-casos-de-teste/) | Casos de teste por regra (ex.: `CT-01` → `COND-01` em AUTH-01) |
-| [`docs/04-relatorios-de-execucao/`](docs/04-relatorios-de-execucao/) | Relatórios de execução, sessões exploratórias e evidências (capturas) |
-| [`docs/05-roadmap-testes.md`](docs/05-roadmap-testes.md) | Roadmap: manual → Mocha → E2E (Fase 8) |
+| [`docs/01-regras-de-negocio/regras-de-negocio.md`](docs/01-regras-de-negocio/regras-de-negocio.md) | Regras implementadas — oráculo de testes |
+| [`docs/02-condicoes-de-teste/`](docs/02-condicoes-de-teste/) | Condições por regra (`COND-*`) |
+| [`docs/03-casos-de-teste/`](docs/03-casos-de-teste/) | Casos por regra (`CT-*`) |
+| [`docs/04-relatorios-de-execucao/`](docs/04-relatorios-de-execucao/) | Execução manual, sessões exploratórias e evidências |
+| [`tests/`](tests/) | Automação funcional (Mocha) |
 
-Rastreabilidade: `docs/01-regras-de-negocio` → `02-condicoes-de-teste` → `03-casos-de-teste` → `04-relatorios-de-execucao` → automação (`05-roadmap-testes`).
+**Rastreabilidade:** `docs/01-regras-de-negocio` → `02-condicoes-de-teste` → `03-casos-de-teste` → `04-relatorios-de-execucao` → `tests/` (automação).
 
 ---
 
@@ -296,6 +313,8 @@ Rastreabilidade: `docs/01-regras-de-negocio` → `02-condicoes-de-teste` → `03
 | Erro `bcrypt` no `npm install` (Windows) | [Build Tools C++](https://visualstudio.microsoft.com/visual-cpp-build-tools/) |
 | Porta 3000 em uso | Altere `PORT` no `.env` |
 | Migração / seed falhou | `npm run db:reset` |
+| `npm test` falha com `ECONNREFUSED` | Suba a API antes: `npm run dev` |
+| Teste espera conflito/duplicata mas retorna `201` | Rode `npm run db:seed` — dados do seed ausentes |
 | Front com tela cinza (se usar `web-QaShop-ecommerce`) | API desligada — suba `npm run dev` aqui primeiro |
 
 ---
@@ -311,6 +330,7 @@ Validado seguindo este README em **macOS**, **Linux** e **Windows** (comandos eq
 | Banco + seed | `npm run prisma:generate` → `prisma:migrate` → `db:seed` | Igual |
 | Reset banco | `npm run db:reset` | Igual (PowerShell/Git Bash; no CMD use PowerShell) |
 | Dev | `npm run dev` → `:3000` | Igual (`node --watch`, Node 20+) |
+| Testes | `npm test` (API rodando) | Igual |
 | Health check | http://localhost:3000/health | Igual |
 
 **Checklist rápido:** `health` OK · Swagger abre · login `alice@test.com` / `Alice@123` retorna JWT.
