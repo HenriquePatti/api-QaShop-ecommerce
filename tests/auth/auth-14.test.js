@@ -25,7 +25,7 @@ describe('[AUTH-14] [POST /auth/login]: Resposta genérica para credenciais inv�
   })
 
   it('CT-03 - login com e-mail em maiúsculas equivalente ao cadastrado e senha incorreta (ex.: `Alice@Test.com`)', async ()=> {
-    const body = { ...baseBody, email: 'Alice@Test.coms', password: 'invalidPassword' };
+    const body = { ...baseBody, email: 'Alice@Test.com', password: 'invalidPassword' };
     const res = await login(body)
       expect(res.status).to.equal(401);
       expect(res.body).to.have.nested.property('error.code', 'UNAUTHORIZED');
