@@ -22,4 +22,16 @@ describe('[AUTH-15] [POST /auth/login]: Sucesso no login', ()=> {
       expect(res.body.user).to.not.have.property('password');
       expect(res.body.user).to.include({ email: email, role: 'CUSTOMER' });  
   })
+
+  const body = { ...baseBody, email: email.toUpperCase() };
+  it(`CT-02 - login com e-mail em maiúsculas equivalente ao cadastrado e senha correta (ex.: ${body.email})`, async ()=> {
+    const res = await login(body);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.not.have.property('error');
+      expect(res.body.token).to.not.be.empty;
+      expect(res.body.token.split('.')).to.have.lengthOf(3);
+      expect(res.body).to.have.property('user');
+      expect(res.body.user).to.not.have.property('password');
+      expect(res.body.user).to.include({ email: email, role: 'CUSTOMER' });
+  })
 })
